@@ -2,6 +2,8 @@
 
 use axum::{extract::rejection::{ FormRejection, JsonRejection, PathRejection, QueryRejection}, http::StatusCode, response::{IntoResponse, Response}};
 
+use super::Responder;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Errors {
 
@@ -48,12 +50,12 @@ fn database_error(err: &sqlx::Error) -> (StatusCode, String) {
         sqlx::Error::Configuration(_) => todo!(),
         sqlx::Error::Database(_) => todo!(),
         sqlx::Error::Io(_) => todo!(),
-        sqlx::Error::Tls(_) => todo!(),
+        sqlx::Error::Tls(_) => todo!(), 
         sqlx::Error::Protocol(_) => todo!(),
-        sqlx::Error::RowNotFound =>  (StatusCode::NOT_FOUND, "".to_string()),
+        sqlx::Error::RowNotFound =>  (StatusCode::OK, "null".to_string()),
         sqlx::Error::TypeNotFound { type_name } => todo!(),
         sqlx::Error::ColumnIndexOutOfBounds { index, len } => todo!(),
-        sqlx::Error::ColumnNotFound(_) => (StatusCode::NOT_FOUND, "".to_string()),
+        sqlx::Error::ColumnNotFound(_) => (StatusCode::OK, "null".to_string()),
         sqlx::Error::ColumnDecode { index, source } => todo!(),
         sqlx::Error::Decode(_) => todo!(),
         sqlx::Error::PoolTimedOut => todo!(),
@@ -66,6 +68,7 @@ fn database_error(err: &sqlx::Error) -> (StatusCode, String) {
 
 impl IntoResponse for Errors {
     fn into_response(self) -> Response {
-        self.get_error().into_response()
+        let (status, message) = self.get_error();
+        Responder::new(status, message, "").into_response()
     }
 }
