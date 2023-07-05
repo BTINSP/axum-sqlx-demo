@@ -4,6 +4,7 @@ mod common;
 mod handle;
 mod database;
 mod model;
+mod middleware;
 
 
 use common::AppState;

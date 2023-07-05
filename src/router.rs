@@ -1,6 +1,7 @@
 use axum::{Router, routing::get, http::{Uri, StatusCode}};
+use axum::middleware;
 
-use crate::{common::{AppState, Responder}, handle};
+use crate::{common::{AppState, Responder}, handle, middleware::authenticator};
 
 
 
@@ -8,9 +9,11 @@ use crate::{common::{AppState, Responder}, handle};
 pub fn create_router(app_state: AppState) -> Router {
     Router::new()
         .nest("/user", Router::new()
-            .route("/get/:username", get(handle::get_user_by_username))
             .route("/all", get(handle::get_all_user)) 
+            .route("/get/:username", get(handle::get_user_by_username))
+            .layer(middleware::from_fn(authenticator))
         )
+    
     .with_state(app_state)
     .fallback(fallback)
            
